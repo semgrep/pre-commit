@@ -53,7 +53,7 @@ rules:
 
 The code in this repository is licensed under the terms of the [LGPL
 2.1](LICENSE). For more information about the licensing details of Semgrep
-itself see [our licensing page](semgrep-licensing).
+itself see [our licensing page][semgrep-licensing].
 
 
 [pre-commit]: https://pre-commit.com
