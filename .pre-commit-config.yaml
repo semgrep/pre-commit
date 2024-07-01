@@ -4,21 +4,18 @@
 default_stages: [manual]
 
 repos:
-  - repo: local
+  - repo: https://github.com/semgrep/pre-commit
+    rev: 'v1.76.0'
     hooks:
       - id: semgrep
         name: Pre-commit semgrep
-        entry: pre-commit
         args: ["--config", "tests/python_simple.yml"]
       - id: semgrep-ci
         name: Pre-commit semgrep-ci
-        entry: pre-commit
         args: ["--config", "tests/python_simple.yml"]
       - id: semgrep-docker-develop
         name: Pre-commit semgrep-docker-develop
-        entry: pre-commit
         args: ["--config", "tests/python_simple.yml"]
       - id: semgrep-docker
         name: Pre-commit semgrep-docker
-        entry: pre-commit
         args: ["--config", "tests/python_simple.yml"]
