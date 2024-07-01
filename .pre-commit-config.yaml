@@ -1,0 +1,21 @@
+# These hooks are meant to be triggered in CI to test the pre-commit hooks,
+# so rather than triggering at every commit, including locally, they are triggered
+# whenever the test-hooks CI workflow is run.
+default_stages: [manual]
+
+repos:
+  - repo: https://github.com/semgrep/pre-commit
+    rev: 'v1.76.0'
+    hooks:
+      - id: semgrep
+        name: Pre-commit semgrep
+        args: ["--config", "tests/python_simple.yml"]
+      - id: semgrep-ci
+        name: Pre-commit semgrep-ci
+        args: ["--config", "tests/python_simple.yml"]
+      - id: semgrep-docker-develop
+        name: Pre-commit semgrep-docker-develop
+        args: ["--config", "tests/python_simple.yml"]
+      - id: semgrep-docker
+        name: Pre-commit semgrep-docker
+        args: ["--config", "tests/python_simple.yml"]
