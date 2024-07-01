@@ -4,7 +4,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Configure git safedir properly
-        run: git config --global --add safe.directory $(pwd)
+        run: git config --global --add safe.directory "$(pwd)"
       - name: Fake update file
         run: git mv tests/python_simple.py python_simple.py
       - name: Test semgrep pre-commit hook
