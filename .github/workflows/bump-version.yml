@@ -69,11 +69,6 @@ jobs:
           res=$(gh pr create --title "${TITLE}" --body "Bump Semgrep Version to ${VERSION}" \
             --base "${TARGET}" --head "${SOURCE}" --reviewer semgrep/cdx)
 
-# commit & tag & push code
-
-git tag $VERSION $(git rev-parse HEAD)
-git push origin tag $VERSION
-
 name: bump-version
 on:
   workflow_dispatch:
