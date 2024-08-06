@@ -16,6 +16,7 @@ on:
         required: true
         type: string
 jobs:
+jobs:
   test-hooks:
     runs-on: ubuntu-latest
     steps:
