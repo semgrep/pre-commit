@@ -16,6 +16,7 @@ jobs:
           PRIVATE_KEY: ${{ secrets.SEMGREP_CI_APP_KEY }}
         name: Get JWT for semgrep-ci GitHub App
         uses: docker://public.ecr.aws/y9k7q4m1/devops/cicd:latest
+
       - id: token
         name: Get token for semgrep-ci GitHub App
         run: |
@@ -45,10 +46,11 @@ jobs:
           git checkout -b $BRANCH
           git add .
           git commit -m "$SUBJECT"
-          git tag $NEW_SEMGREP_VERSION $(git rev-parse HEAD)
+          git tag "v$NEW_SEMGREP_VERSION" HEAD
           git push --set-upstream origin $BRANCH
           echo "branch=$BRANCH" >> $GITHUB_OUTPUT
           echo "subject=$SUBJECT" >> $GITHUB_OUTPUT
+
       - name: Create PR
         id: open-pr
         env:
