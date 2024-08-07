@@ -1,0 +1,130 @@
+jobs:
+  bump-version:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: write
+      pull-requests: write
+      checks: write
+    env:
+      NEW_SEMGREP_VERSION: ${{ github.event.inputs.version }}
+    steps:
+      - id: jwt
+        env:
+          EXPIRATION: 600
+          ISSUER: ${{ secrets.SEMGREP_CI_APP_ID }}
+          PRIVATE_KEY: ${{ secrets.SEMGREP_CI_APP_KEY }}
+        name: Get JWT for semgrep-ci GitHub App
+        uses: docker://public.ecr.aws/y9k7q4m1/devops/cicd:latest
+
+      - id: token
+        name: Get token for semgrep-ci GitHub App
+        run: |
+          TOKEN="$(curl -X POST \
+          -H "Authorization: Bearer ${{ steps.jwt.outputs.jwt }}" \
+          -H "Accept: application/vnd.github.v3+json" \
+          "https://api.github.com/app/installations/${{ secrets.SEMGREP_CI_APP_INSTALLATION_ID }}/access_tokens" | \
+          jq -r .token)"
+          echo "::add-mask::$TOKEN"
+          echo "token=$TOKEN" >> $GITHUB_OUTPUT
+
+      - uses: actions/checkout@v3
+        with:
+          token: ${{ steps.token.outputs.token }}
+
+      - name: Bump version in this repo
+        run: scripts/bump-version.sh "$NEW_SEMGREP_VERSION"
+
+      - name: Commit and push
+        id: commit
+        env:
+          BRANCH: "gha/bump-version-${{ github.event.inputs.version }}-${{ github.run_id }}-${{ github.run_attempt }}"
+          SUBJECT: "Bump semgrep to ${{ github.event.inputs.version }}"
+        run: |
+          git config user.name ${{ github.actor }}
+          git config user.email ${{ github.actor }}@users.noreply.github.com
+          git checkout -b $BRANCH
+          git add setup.py README.md
+          git commit -m "$SUBJECT"
+          git tag "v$NEW_SEMGREP_VERSION" HEAD
+          git push --set-upstream origin $BRANCH
+          echo "branch=$BRANCH" >> $GITHUB_OUTPUT
+          echo "subject=$SUBJECT" >> $GITHUB_OUTPUT
+
+      - name: Create PR
+        id: open-pr
+        env:
+          SOURCE: "${{ steps.commit.outputs.branch }}"
+          TARGET: "${{ github.event.repository.default_branch }}"
+          TITLE: "chore: Release Version ${{ inputs.version }}"
+          GITHUB_TOKEN: ${{ steps.token.outputs.token }}
+          VERSION: "${{ inputs.version }}"
+        run: |
+          # check if the branch already has a pull request open
+          if gh pr list --head ${SOURCE} | grep -vq "no pull requests"; then
+              # pull request already open
+              echo "pull request from SOURCE ${SOURCE} to TARGET ${TARGET} is already open";
+              echo "cancelling release"
+              exit 1
+          fi
+          # open new pull request with the body of from the local template.
+          res=$(gh pr create --title "${TITLE}" --body "Bump Semgrep Version to ${VERSION}" \
+            --base "${TARGET}" --head "${SOURCE}" --reviewer semgrep/cdx)
+
+      - name: Approve & Merge PR
+        run: |
+          gh pr review --approve ${{ steps.commit.branch }}
+          gh pr merge --auto --squash ${{ steps.commit.branch }}
+
+      - name: bump-yaml
+        run: scripts/bump-version-yaml.sh "$NEW_SEMGREP_VERSION"
+
+      - name: Commit and push
+        id: commit-yaml
+        env:
+          BRANCH: "gha/bump-version-yaml-${NEW_SEMGREP_VERSION}-${{ github.run_id }}-${{ github.run_attempt }}"
+          SUBJECT: "Bump semgrep to ${NEW_SEMGREP_VERSION}"
+        run: |
+          git config user.name ${{ github.actor }}
+          git config user.email ${{ github.actor }}@users.noreply.github.com
+          git checkout -b $BRANCH
+          git add .
+          git commit -m "$SUBJECT"
+          git push --set-upstream origin $BRANCH
+          echo "branch=$BRANCH" >> $GITHUB_OUTPUT
+          echo "subject=$SUBJECT" >> $GITHUB_OUTPUT
+
+      - name: Create PR
+        id: open-2nd-pr
+        env:
+          SOURCE: "${{ steps.commit-yaml.outputs.branch }}"
+          TARGET: "${{ github.event.repository.default_branch }}"
+          TITLE: "chore: Release Version ${{ inputs.version }}"
+          GITHUB_TOKEN: ${{ steps.token.outputs.token }}
+          VERSION: "${{ inputs.version }}"
+        run: |
+          # check if the branch already has a pull request open
+          if gh pr list --head ${SOURCE} | grep -vq "no pull requests"; then
+              # pull request already open
+              echo "pull request from SOURCE ${SOURCE} to TARGET ${TARGET} is already open";
+              echo "cancelling release"
+              exit 1
+          fi
+          # open new pull request with the body of from the local template.
+          res=$(gh pr create --title "${TITLE}" --body "Bump Semgrep Version to ${VERSION}" \
+            --base "${TARGET}" --head "${SOURCE}" --reviewer semgrep/cdx)
+
+      - name: Approve & Merge yaml PR
+        run: |
+          gh pr review --approve ${{ steps.commit-yaml.branch }}
+          gh pr merge --auto --squash ${{ steps.commit-yaml.branch }}
+
+
+name: bump-version
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version of semgrep to use"
+        required: true
+        type: string
