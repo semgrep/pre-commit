@@ -73,7 +73,7 @@ jobs:
             --base "${TARGET}" --head "${SOURCE}")
 
       - name: Approve & Merge PR
-	env:
+        env:
           GITHUB_TOKEN: ${{ steps.token.outputs.token }}
         run: |
           gh pr review --approve ${{ steps.commit.branch }}
