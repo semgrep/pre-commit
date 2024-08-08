@@ -16,7 +16,7 @@ AppSec Platform][semgrep-platform], similar to `semgrep ci`, we provide the
 
 ```yaml
 - repo: https://github.com/semgrep/pre-commit
-  rev: 'v2.22.2'
+  rev: 'v3.33.3'
   hooks:
     - id: semgrep-ci
 ```
@@ -29,7 +29,7 @@ committed with a specified config, skipping files with unknown extensions:
 
 ```yaml
 - repo: https://github.com/semgrep/pre-commit
-  rev: 'v2.22.2'
+  rev: 'v3.33.3'
   hooks:
     - id: semgrep
       # See https://semgrep.dev/explore to select a ruleset and copy its URL
