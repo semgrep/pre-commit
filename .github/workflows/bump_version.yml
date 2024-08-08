@@ -47,6 +47,7 @@ jobs:
           git add setup.py README.md
           git commit -m "$SUBJECT"
           git tag "v$NEW_SEMGREP_VERSION" HEAD
+          git remote -vv
           git push --set-upstream origin $BRANCH
           echo "branch=$BRANCH" >> $GITHUB_OUTPUT
           echo "subject=$SUBJECT" >> $GITHUB_OUTPUT
