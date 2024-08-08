@@ -1,5 +1,5 @@
 jobs:
-  bump-version:
+  bump-version-yaml:
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -77,7 +77,7 @@ jobs:
           git restore .
           git checkout develop
 
-name: bump-version
+name: bump-version-yaml
 on:
   workflow_dispatch:
     inputs:
