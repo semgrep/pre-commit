@@ -1,6 +1,8 @@
 jobs:
-  bump-version:
+  bump_version_yaml:
     runs-on: ubuntu-latest
+    if: ${{ github.actor == 'github-actions' || github.actor == 'semgrep-ci[bot]'}}
+    steps:
     permissions:
       id-token: write
       contents: write
@@ -32,32 +34,30 @@ jobs:
         with:
           token: ${{ steps.token.outputs.token }}
 
-      - name: Bump version in this repo
-        run: scripts/bump-version.sh "$NEW_SEMGREP_VERSION"
+      - name: bump-yaml
+        run: scripts/bump-version-yaml.sh "$NEW_SEMGREP_VERSION"
 
       - name: Commit and push
-        id: commit
+        id: commit-yaml
         env:
-          BRANCH: "gha/bump-version-${{ github.event.inputs.version }}-${{ github.run_id }}-${{ github.run_attempt }}"
-          SUBJECT: "Bump setup to ${{ github.event.inputs.version }}"
+          BRANCH: "gha/bump-version-yaml-${{ github.event.inputs.version }}-${{ github.run_id }}-${{ github.run_attempt }}"
+          SUBJECT: "Bump pre-commit yaml to ${{ github.event.inputs.version }}"
         run: |
           git config user.name semgrep-ci[bot]
           git config user.email semgrep-ci[bot]@users.noreply.github.com
           git checkout -b $BRANCH
-          git add setup.py README.md
+          git add .pre-commit-config.yaml
           git commit -m "$SUBJECT"
-          git tag "v$NEW_SEMGREP_VERSION" HEAD
-          git remote -vv
           git push --set-upstream origin $BRANCH
           echo "branch=$BRANCH" >> $GITHUB_OUTPUT
           echo "subject=$SUBJECT" >> $GITHUB_OUTPUT
 
       - name: Create PR
-        id: open-pr
+        id: open-2nd-pr
         env:
-          SOURCE: "${{ steps.commit.outputs.branch }}"
+          SOURCE: "${{ steps.commit-yaml.outputs.branch }}"
           TARGET: "${{ github.event.repository.default_branch }}"
-          TITLE: "chore: update pre-commit to semgrep ${{ inputs.version }}"
+          TITLE: "chore: update YAML ${{ inputs.version }}"
           GITHUB_TOKEN: ${{ steps.token.outputs.token }}
           VERSION: "${{ inputs.version }}"
         run: |
@@ -71,14 +71,10 @@ jobs:
           # open new pull request with the body of from the local template.
           res=$(gh pr create --title "${TITLE}" --body "Bump Semgrep Version to ${VERSION}" \
             --base "${TARGET}" --head "${SOURCE}")
-          git restore .
-          git checkout develop
 
-name: bump-version
+name: bump_version_yaml
 on:
-  workflow_dispatch:
-    inputs:
-      version:
-        description: "Version of semgrep to use"
-        required: true
-        type: string
+  push:
+    branches:
+      - develop
+
