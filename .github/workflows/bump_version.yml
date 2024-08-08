@@ -72,12 +72,6 @@ jobs:
           res=$(gh pr create --title "${TITLE}" --body "Bump Semgrep Version to ${VERSION}" \
             --base "${TARGET}" --head "${SOURCE}")
 
-      - name: Approve & Merge PR
-        env:
-          GITHUB_TOKEN: ${{ steps.token.outputs.token }}
-        run: |
-          gh pr review --approve ${{ steps.commit.branch }}
-          gh pr merge --auto --squash ${{ steps.commit.branch }}
 
       - name: bump-yaml
         run: scripts/bump-version-yaml.sh "$NEW_SEMGREP_VERSION"
@@ -117,10 +111,6 @@ jobs:
           res=$(gh pr create --title "${TITLE}" --body "Bump Semgrep Version to ${VERSION}" \
             --base "${TARGET}" --head "${SOURCE}" --reviewer semgrep/cdx)
 
-      - name: Approve & Merge yaml PR
-        run: |
-          gh pr review --approve ${{ steps.commit-yaml.branch }}
-          gh pr merge --auto --squash ${{ steps.commit-yaml.branch }}
 
 
 name: bump-version
