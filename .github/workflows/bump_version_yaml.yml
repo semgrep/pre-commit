@@ -42,8 +42,8 @@ jobs:
           BRANCH: "gha/bump-version-yaml-${{ github.event.inputs.version }}-${{ github.run_id }}-${{ github.run_attempt }}"
           SUBJECT: "Bump pre-commit yaml to ${{ github.event.inputs.version }}"
         run: |
-          git config user.name semgrep-ci[bot]
-          git config user.email semgrep-ci[bot]@users.noreply.github.com
+          git config user.name ${{ github.actor }}
+          git config user.email ${{ github.actor }}@users.noreply.github.com
           git checkout -b $BRANCH
           git add .pre-commit-config.yaml
           git commit -m "$SUBJECT"
@@ -52,7 +52,7 @@ jobs:
           echo "subject=$SUBJECT" >> $GITHUB_OUTPUT
 
       - name: Create PR
-        id: open-2nd-pr
+        id: open-pr
         env:
           SOURCE: "${{ steps.commit-yaml.outputs.branch }}"
           TARGET: "${{ github.event.repository.default_branch }}"
