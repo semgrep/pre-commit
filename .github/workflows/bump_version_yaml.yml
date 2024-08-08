@@ -73,6 +73,9 @@ jobs:
 
 name: bump_version_yaml
 on:
-  push:
+  pull_request:
     branches:
       - develop
+    types:
+      [closed]
+    workflow_dispatch:
