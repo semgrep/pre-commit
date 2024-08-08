@@ -39,7 +39,7 @@ jobs:
         id: commit
         env:
           BRANCH: "gha/bump-version-${{ github.event.inputs.version }}-${{ github.run_id }}-${{ github.run_attempt }}"
-          SUBJECT: "Bump semgrep to ${{ github.event.inputs.version }}"
+          SUBJECT: "Bump setup to ${{ github.event.inputs.version }}"
         run: |
           git config user.name semgrep-ci[bot]
           git config user.email semgrep-ci[bot]@users.noreply.github.com
@@ -79,13 +79,13 @@ jobs:
       - name: Commit and push
         id: commit-yaml
         env:
-          BRANCH: "gha/bump-version-yaml-${NEW_SEMGREP_VERSION}-${{ github.run_id }}-${{ github.run_attempt }}"
-          SUBJECT: "Bump semgrep to ${NEW_SEMGREP_VERSION}"
+          BRANCH: "gha/bump-version-yaml-${{ github.event.inputs.version }}-${{ github.run_id }}-${{ github.run_attempt }}"
+          SUBJECT: "Bump pre-commit yaml to ${{ github.event.inputs.version }}"
         run: |
-          git config user.name ${{ github.actor }}
-          git config user.email ${{ github.actor }}@users.noreply.github.com
+          git config user.name semgrep-ci[bot]
+          git config user.email semgrep-ci[bot]@users.noreply.github.com
           git checkout -b $BRANCH
-          git add .
+          git add .pre-commit-config.yaml
           git commit -m "$SUBJECT"
           git push --set-upstream origin $BRANCH
           echo "branch=$BRANCH" >> $GITHUB_OUTPUT
