@@ -78,4 +78,3 @@ on:
       - develop
     types:
       [closed]
-    workflow_dispatch:
