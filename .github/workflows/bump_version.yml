@@ -28,8 +28,9 @@ jobs:
           echo "::add-mask::$TOKEN"
           echo "token=$TOKEN" >> $GITHUB_OUTPUT
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
+          submodules: true
           token: ${{ steps.token.outputs.token }}
 
       - name: Bump version in this repo
@@ -47,6 +48,7 @@ jobs:
           git add setup.py README.md
           git commit -m "$SUBJECT"
           git tag "v$NEW_SEMGREP_VERSION" HEAD
+          git remote -vv
           git push --set-upstream origin $BRANCH
           echo "branch=$BRANCH" >> $GITHUB_OUTPUT
           echo "subject=$SUBJECT" >> $GITHUB_OUTPUT
