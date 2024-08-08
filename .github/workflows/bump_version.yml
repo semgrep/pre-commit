@@ -30,6 +30,7 @@ jobs:
 
       - uses: actions/checkout@v4
         with:
+          submodules: true
           token: ${{ steps.token.outputs.token }}
 
       - name: Bump version in this repo
