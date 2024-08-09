@@ -47,8 +47,7 @@ jobs:
           git config user.name semgrep-ci[bot]
           git config user.email semgrep-ci[bot]@users.noreply.github.com
           git checkout -b $BRANCH
-          git add setup.py README.md
-          git commit -m "$SUBJECT"
+          git commit -am "$SUBJECT"
           git tag "v$NEW_SEMGREP_VERSION" HEAD
           git remote -vv
           git push --set-upstream origin $BRANCH
