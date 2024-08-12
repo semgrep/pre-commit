@@ -28,26 +28,30 @@ jobs:
           echo "::add-mask::$TOKEN"
           echo "token=$TOKEN" >> $GITHUB_OUTPUT
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           token: ${{ steps.token.outputs.token }}
 
       - name: Bump version in this repo
         run: scripts/bump-version.sh "$NEW_SEMGREP_VERSION"
 
+      - name: bump-yaml
+        run: scripts/bump-version-yaml.sh "$NEW_SEMGREP_VERSION"
+                
       - name: Commit and push
         id: commit
         env:
-          BRANCH: "gha/bump-version-${NEW_SEMGREP_VERSION}-${{ github.run_id }}-${{ github.run_attempt }}"
-          SUBJECT: "Bump semgrep to ${NEW_SEMGREP_VERSION}"
+          BRANCH: "gha/bump-version-${{ github.event.inputs.version }}-${{ github.run_id }}-${{ github.run_attempt }}"
+          SUBJECT: "Bump setup to ${{ github.event.inputs.version }}"
         run: |
           git config user.name ${{ github.actor }}
           git config user.email ${{ github.actor }}@users.noreply.github.com
           git checkout -b $BRANCH
-          git add .
-          git commit -m "$SUBJECT"
+          git commit -am "$SUBJECT"
           git tag "v$NEW_SEMGREP_VERSION" HEAD
+          git remote -vv
           git push --set-upstream origin $BRANCH
+          git push origin tag "v$NEW_SEMGREP_VERSION"
           echo "branch=$BRANCH" >> $GITHUB_OUTPUT
           echo "subject=$SUBJECT" >> $GITHUB_OUTPUT
 
@@ -56,7 +60,7 @@ jobs:
         env:
           SOURCE: "${{ steps.commit.outputs.branch }}"
           TARGET: "${{ github.event.repository.default_branch }}"
-          TITLE: "chore: Release Version ${{ inputs.version }}"
+          TITLE: "chore: update pre-commit to semgrep ${{ inputs.version }}"
           GITHUB_TOKEN: ${{ steps.token.outputs.token }}
           VERSION: "${{ inputs.version }}"
         run: |
@@ -69,56 +73,9 @@ jobs:
           fi
           # open new pull request with the body of from the local template.
           res=$(gh pr create --title "${TITLE}" --body "Bump Semgrep Version to ${VERSION}" \
-            --base "${TARGET}" --head "${SOURCE}" --reviewer semgrep/cdx)
-
-      - name: Approve & Merge PR
-        run: |
-          gh pr review --approve ${{ steps.commit.branch }}
-          gh pr merge --auto --squash ${{ steps.commit.branch }}
-
-      - name: bump-yaml
-        run: scripts/bump-version-yaml.sh "$NEW_SEMGREP_VERSION"
-
-      - name: Commit and push
-        id: commit-yaml
-        env:
-          BRANCH: "gha/bump-version-yaml-${NEW_SEMGREP_VERSION}-${{ github.run_id }}-${{ github.run_attempt }}"
-          SUBJECT: "Bump semgrep to ${NEW_SEMGREP_VERSION}"
-        run: |
-          git config user.name ${{ github.actor }}
-          git config user.email ${{ github.actor }}@users.noreply.github.com
-          git checkout -b $BRANCH
-          git add .
-          git commit -m "$SUBJECT"
-          git push --set-upstream origin $BRANCH
-          echo "branch=$BRANCH" >> $GITHUB_OUTPUT
-          echo "subject=$SUBJECT" >> $GITHUB_OUTPUT
-
-      - name: Create PR
-        id: open-2nd-pr
-        env:
-          SOURCE: "${{ steps.commit-yaml.outputs.branch }}"
-          TARGET: "${{ github.event.repository.default_branch }}"
-          TITLE: "chore: Release Version ${{ inputs.version }}"
-          GITHUB_TOKEN: ${{ steps.token.outputs.token }}
-          VERSION: "${{ inputs.version }}"
-        run: |
-          # check if the branch already has a pull request open
-          if gh pr list --head ${SOURCE} | grep -vq "no pull requests"; then
-              # pull request already open
-              echo "pull request from SOURCE ${SOURCE} to TARGET ${TARGET} is already open";
-              echo "cancelling release"
-              exit 1
-          fi
-          # open new pull request with the body of from the local template.
-          res=$(gh pr create --title "${TITLE}" --body "Bump Semgrep Version to ${VERSION}" \
-            --base "${TARGET}" --head "${SOURCE}" --reviewer semgrep/cdx)
-
-      - name: Approve & Merge yaml PR
-        run: |
-          gh pr review --approve ${{ steps.commit-yaml.branch }}
-          gh pr merge --auto --squash ${{ steps.commit-yaml.branch }}
-
+            --base "${TARGET}" --head "${SOURCE}")
+          git restore .
+          git checkout develop
 
 name: bump-version
 on:
