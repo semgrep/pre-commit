@@ -33,10 +33,10 @@ jobs:
           token: ${{ steps.token.outputs.token }}
 
       - name: Bump version in this repo
-        run: scripts/bump-version.sh "$NEW_SEMGREP_VERSION"
+        run: scripts/bump-version.sh "${NEW_SEMGREP_VERSION}"
 
       - name: bump-yaml
-        run: scripts/bump-version-yaml.sh "$NEW_SEMGREP_VERSION"
+        run: scripts/bump-version-yaml.sh "${NEW_SEMGREP_VERSION}"
                 
       - name: Commit and push
         id: commit
@@ -48,7 +48,7 @@ jobs:
           git config user.email ${{ github.actor }}@users.noreply.github.com
           git checkout -b $BRANCH
           git commit -am "$SUBJECT"
-          git tag "v$NEW_SEMGREP_VERSION" HEAD
+          git tag "v${NEW_SEMGREP_VERSION}" HEAD
           git remote -vv
           git push --set-upstream origin $BRANCH
           git push origin tag "v$NEW_SEMGREP_VERSION"
@@ -74,8 +74,6 @@ jobs:
           # open new pull request with the body of from the local template.
           res=$(gh pr create --title "${TITLE}" --body "Bump Semgrep Version to ${VERSION}" \
             --base "${TARGET}" --head "${SOURCE}")
-          git restore .
-          git checkout develop
 
 name: bump-version
 on:
