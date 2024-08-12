@@ -1,0 +1,10 @@
+name: evil-workflow
+on: pull_request_target
+
+jobs:
+  evil-job:
+  runs-on: ubuntu-latest
+  steps:
+   - name: open evil PR
+     run: |
+       gh pr create --title="evil test PR" --body "evil test body" --base="yosef/auto-version-bump"
