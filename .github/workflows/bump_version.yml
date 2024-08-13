@@ -35,9 +35,6 @@ jobs:
       - name: Bump version in this repo
         run: scripts/bump-version.sh "${NEW_SEMGREP_VERSION}"
 
-      - name: bump-yaml
-        run: scripts/bump-version-yaml.sh "${NEW_SEMGREP_VERSION}"
-                
       - name: Commit and push
         id: commit
         env:
