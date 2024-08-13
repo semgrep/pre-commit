@@ -1,0 +1,23 @@
+jobs:
+  tag-version:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: write
+      pull-requests: write
+      checks: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ steps.token.outputs.token }}
+
+      - name: Bump version in this repo
+        env:
+          GITHUB_TOKEN: ${{ steps.token.outputs.token }}
+        run: scripts/bump-version.sh "${NEW_SEMGREP_VERSION}"
+
+name: tag-version
+on:
+  push:
+    branches:
+      - develop
