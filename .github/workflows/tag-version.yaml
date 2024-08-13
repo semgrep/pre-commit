@@ -15,7 +15,7 @@ jobs:
       - name: Bump version in this repo
         env:
           GITHUB_TOKEN: ${{ steps.token.outputs.token }}
-        run: scripts/bump-version.sh "${NEW_SEMGREP_VERSION}"
+        run: scripts/tag-version.sh "${NEW_SEMGREP_VERSION}"
 
 name: tag-version
 on:
