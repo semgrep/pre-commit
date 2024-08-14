@@ -1,3 +1,5 @@
+#!/bin/sh
+
 VERSION=$1
 OLD_VERSION=$(grep -o 'version=\"[0-9.]*\"' setup.py | sed "s/version=\"\([0-9.]*\)\"/\1/")
 
