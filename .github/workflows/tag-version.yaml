@@ -8,6 +8,25 @@ jobs:
       pull-requests: write
       checks: write
     steps:
+      - id: jwt
+        env:
+          EXPIRATION: 600
+          ISSUER: ${{ secrets.SEMGREP_CI_APP_ID }}
+          PRIVATE_KEY: ${{ secrets.SEMGREP_CI_APP_KEY }}
+        name: Get JWT for semgrep-ci GitHub App
+        uses: docker://public.ecr.aws/y9k7q4m1/devops/cicd:latest
+
+      - id: token
+        name: Get token for semgrep-ci GitHub App
+        run: |
+          TOKEN="$(curl -X POST \
+          -H "Authorization: Bearer ${{ steps.jwt.outputs.jwt }}" \
+          -H "Accept: application/vnd.github.v3+json" \
+          "https://api.github.com/app/installations/${{ secrets.SEMGREP_CI_APP_INSTALLATION_ID }}/access_tokens" | \
+          jq -r .token)"
+          echo "::add-mask::$TOKEN"
+          echo "token=$TOKEN" >> $GITHUB_OUTPUT
+
       - uses: actions/checkout@v4
         with:
           token: ${{ steps.token.outputs.token }}
