@@ -49,6 +49,7 @@ jobs:
 
       - uses: actions/checkout@v4
         with:
+          ref: develop
           token: ${{ steps.token.outputs.token }}
 
       - name: Move tag to develop branch
