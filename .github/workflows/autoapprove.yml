@@ -28,6 +28,10 @@ jobs:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      # Now we switch to semgrep-ci[bot] to actually be able to
+      # move the tag we created in bump_version.yml from the
+      # release branch to develop
+
       - id: jwt
         env:
           EXPIRATION: 600
