@@ -51,7 +51,14 @@ jobs:
         with:
           token: ${{ steps.token.outputs.token }}
 
-      - name: Bump version in this repo
+      - name: Move tag to develop branch
         env:
           GITHUB_TOKEN: ${{ steps.token.outputs.token }}
-        run: scripts/tag-version.sh "${NEW_SEMGREP_VERSION}"
+        run: |
+          CURR_VERSION=$(grep -o 'version=\"[0-9.]*\"' setup.py | sed "s/version=\"\([0-9.]*\)\"/\1/")
+          # We tagged the release branch first in bump_version.yml
+          # to allow tests to pass; now moving it to develop so
+          # it can be a part of its history
+          git push --delete origin "v${CURR_VERSION}"
+          git tag "v${CURR_VERSION}" HEAD
+          git push origin tag "v${CURR_VERSION}"
