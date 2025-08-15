@@ -5,7 +5,7 @@ default_stages: [manual]
 
 repos:
   - repo: https://github.com/semgrep/pre-commit
-    rev: 'v1.132.0'
+    rev: 'v1.132.1'
     hooks:
       - id: semgrep
         name: Pre-commit semgrep
