@@ -37,6 +37,7 @@ jobs:
           sign-commits: true
 
       - name: Tag release on bump branch
+        if: steps.cpr.outputs.pull-request-operation != 'none'
         env:
           GH_TOKEN: ${{ steps.token.outputs.token }}
           SHA: ${{ steps.cpr.outputs.pull-request-head-sha }}
