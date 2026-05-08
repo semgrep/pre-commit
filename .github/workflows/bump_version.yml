@@ -5,32 +5,17 @@
 jobs:
   bump-version:
     runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: write
-      pull-requests: write
-      checks: write
+    permissions: {}
     env:
       NEW_SEMGREP_VERSION: ${{ github.event.inputs.version }}
     steps:
-      - id: jwt
-        env:
-          EXPIRATION: 600
-          ISSUER: ${{ secrets.SEMGREP_CI_APP_ID }}
-          PRIVATE_KEY: ${{ secrets.SEMGREP_CI_APP_KEY }}
-        name: Get JWT for semgrep-ci GitHub App
-        uses: docker://public.ecr.aws/y9k7q4m1/devops/cicd:latest
-
       - id: token
         name: Get token for semgrep-ci GitHub App
-        run: |
-          TOKEN="$(curl -X POST \
-          -H "Authorization: Bearer ${{ steps.jwt.outputs.jwt }}" \
-          -H "Accept: application/vnd.github.v3+json" \
-          "https://api.github.com/app/installations/${{ secrets.SEMGREP_CI_APP_INSTALLATION_ID }}/access_tokens" | \
-          jq -r .token)"
-          echo "::add-mask::$TOKEN"
-          echo "token=$TOKEN" >> $GITHUB_OUTPUT
+        uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
+        with:
+          app-id: ${{ secrets.SEMGREP_CI_CLIENT_ID }}
+          private-key: ${{ secrets.SEMGREP_CI_APP_KEY }}
+          repositories: pre-commit
 
       - uses: actions/checkout@v4
         with:
