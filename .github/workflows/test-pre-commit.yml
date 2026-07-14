@@ -2,25 +2,25 @@ jobs:
   test-hooks:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
       - name: Configure git safedir properly
         run: git config --global --add safe.directory "$(pwd)"
       - name: Fake update file
         run: git mv tests/python_simple.py python_simple.py
       - name: Test semgrep pre-commit hook
-        uses: pre-commit/action@v3.0.0
+        uses: pre-commit/action@646c83fcd040023954eafda54b4db0192ce70507 # v3.0.0
         with:
           extra_args: semgrep --hook-stage manual --files python_simple.py
       - name: Test semgrep-ci pre-commit hook
-        uses: pre-commit/action@v3.0.0
+        uses: pre-commit/action@646c83fcd040023954eafda54b4db0192ce70507 # v3.0.0
         with:
           extra_args: semgrep-ci --hook-stage manual --files python_simple.py
       - name: Test semgrep-docker-develop pre-commit hook
-        uses: pre-commit/action@v3.0.0
+        uses: pre-commit/action@646c83fcd040023954eafda54b4db0192ce70507 # v3.0.0
         with:
           extra_args: semgrep-docker-develop --hook-stage manual --files python_simple.py
       - name: Test semgrep-docker pre-commit hook
-        uses: pre-commit/action@v3.0.0
+        uses: pre-commit/action@646c83fcd040023954eafda54b4db0192ce70507 # v3.0.0
         with:
           extra_args: semgrep-docker --hook-stage manual --files python_simple.py
 
