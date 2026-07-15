@@ -36,24 +36,13 @@ jobs:
       # move the tag we created in bump_version.yml from the
       # release branch to develop
 
-      - id: jwt
-        env:
-          EXPIRATION: 600
-          ISSUER: ${{ secrets.SEMGREP_CI_APP_ID }}
-          PRIVATE_KEY: ${{ secrets.SEMGREP_CI_APP_KEY }}
-        name: Get JWT for semgrep-ci GitHub App
-        uses: docker://public.ecr.aws/y9k7q4m1/devops/cicd:latest
-
       - id: token
         name: Get token for semgrep-ci GitHub App
-        run: |
-          TOKEN="$(curl -X POST \
-          -H "Authorization: Bearer ${{ steps.jwt.outputs.jwt }}" \
-          -H "Accept: application/vnd.github.v3+json" \
-          "https://api.github.com/app/installations/${{ secrets.SEMGREP_CI_APP_INSTALLATION_ID }}/access_tokens" | \
-          jq -r .token)"
-          echo "::add-mask::$TOKEN"
-          echo "token=$TOKEN" >> $GITHUB_OUTPUT
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          client-id: ${{ secrets.SEMGREP_CI_CLIENT_ID }}
+          private-key: ${{ secrets.SEMGREP_CI_APP_KEY }}
+          owner: ${{ github.repository_owner }}
 
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
