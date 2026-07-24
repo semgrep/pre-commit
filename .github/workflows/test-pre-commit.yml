@@ -1,3 +1,10 @@
+name: pre-commit-hook-test
+on:
+  pull_request: null
+  push:
+    branches:
+      - develop
+
 jobs:
   test-hooks:
     runs-on: ubuntu-latest
@@ -7,26 +14,24 @@ jobs:
         run: git config --global --add safe.directory "$(pwd)"
       - name: Fake update file
         run: git mv tests/python_simple.py python_simple.py
+      - name: Set up uv
+        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
+        with:
+          enable-cache: true
+          cache-dependency-glob: .pre-commit-config.yaml
+          version: "0.11.x"
+      - name: Cache pre-commit hook envs
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: ~/.cache/pre-commit
+          key: pre-commit-v1|${{ hashFiles('.pre-commit-config.yaml') }}
+      - name: Install pre-commit
+        run: UV_EXCLUDE_NEWER="1 week" uv tool install pre-commit --with pre-commit-uv
       - name: Test semgrep pre-commit hook
-        uses: pre-commit/action@646c83fcd040023954eafda54b4db0192ce70507 # v3.0.0
-        with:
-          extra_args: semgrep --hook-stage manual --files python_simple.py
+        run: pre-commit run --show-diff-on-failure --color=always semgrep --hook-stage manual --files python_simple.py
       - name: Test semgrep-ci pre-commit hook
-        uses: pre-commit/action@646c83fcd040023954eafda54b4db0192ce70507 # v3.0.0
-        with:
-          extra_args: semgrep-ci --hook-stage manual --files python_simple.py
+        run: pre-commit run --show-diff-on-failure --color=always semgrep-ci --hook-stage manual --files python_simple.py
       - name: Test semgrep-docker-develop pre-commit hook
-        uses: pre-commit/action@646c83fcd040023954eafda54b4db0192ce70507 # v3.0.0
-        with:
-          extra_args: semgrep-docker-develop --hook-stage manual --files python_simple.py
+        run: pre-commit run --show-diff-on-failure --color=always semgrep-docker-develop --hook-stage manual --files python_simple.py
       - name: Test semgrep-docker pre-commit hook
-        uses: pre-commit/action@646c83fcd040023954eafda54b4db0192ce70507 # v3.0.0
-        with:
-          extra_args: semgrep-docker --hook-stage manual --files python_simple.py
-
-name: pre-commit-hook-test
-on:
-  pull_request: null
-  push:
-    branches:
-      - develop
+        run: pre-commit run --show-diff-on-failure --color=always semgrep-docker --hook-stage manual --files python_simple.py
