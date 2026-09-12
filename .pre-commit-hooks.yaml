@@ -31,7 +31,7 @@
   # permissions to default path /.semgrep
   # alt: we could also fallback to use /tmp/ if we can't write to /.semgrep in
   # the Python code.
-  entry: -e SEMGREP_LOG_FILE=/tmp/out.log -e SEMGREP_VERSION_CACHE_PATH=/tmp/cache semgrep/semgrep-nightly:develop semgrep
+  entry: -e SEMGREP_LOG_FILE=/tmp/out.log -e SEMGREP_VERSION_CACHE_PATH=/tmp/cache docker.io/semgrep/semgrep-nightly:develop semgrep
 
 # using latest instead
 - id: semgrep-docker
@@ -39,4 +39,4 @@
   description: This hook runs semgrep (a.k.a. semgrep:latest)
   language: docker_image
   # See the comment above for why we set those SEMGREP_XXX variables
-  entry: -e SEMGREP_LOG_FILE=/tmp/out.log -e SEMGREP_VERSION_CACHE_PATH=/tmp/cache semgrep/semgrep:latest semgrep
+  entry: -e SEMGREP_LOG_FILE=/tmp/out.log -e SEMGREP_VERSION_CACHE_PATH=/tmp/cache docker.io/semgrep/semgrep:latest semgrep
